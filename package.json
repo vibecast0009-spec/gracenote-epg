@@ -15,7 +15,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "release:prepare": "npm run build && bash scripts/prepare-release.sh",
+    "pack": "npm run release:prepare"
   },
   "bin": {
     "gracenote-epg": "./dist/index.js"

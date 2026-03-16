@@ -9,3 +9,5 @@ cache.json
 archive/
 *.xmltv
 .xmltv
+.cursor
+release/

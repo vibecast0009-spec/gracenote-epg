@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build
+
+      - name: Prepare release archive
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          OUT="gracenote-epg-${VERSION}"
+          mkdir -p "$OUT"
+          cp -r dist package.json package-lock.json config.example.json LICENSE README.md "$OUT/"
+          mkdir -p "$OUT/packaging/systemd"
+          cp packaging/systemd/gracenote-epg.service packaging/systemd/gracenote-epg.timer packaging/systemd/README.md "$OUT/packaging/systemd/"
+          cp scripts/install.sh "$OUT/"
+          chmod +x "$OUT/install.sh"
+          tar czvf "gracenote-epg-${VERSION}.tar.gz" "$OUT"
+          zip -r "gracenote-epg-${VERSION}.zip" "$OUT"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "OUT=$OUT" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            gracenote-epg-${{ env.VERSION }}.tar.gz
+            gracenote-epg-${{ env.VERSION }}.zip
+          body: |
+            ## Installation
+
+            1. Download the archive for your platform (tar.gz or zip).
+            2. Extract and run the installer (Linux/macOS):
+               ```bash
+               ./install.sh
+               ```
+            3. Edit config: `config.json` in the install directory (default `/opt/gracenote-epg`).
+            4. Enable the systemd timer (Linux): `sudo systemctl enable --now gracenote-epg.timer`
+
+            See [packaging/systemd/README.md](packaging/systemd/README.md) for systemd details.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

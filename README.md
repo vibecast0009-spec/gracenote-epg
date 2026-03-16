@@ -2,13 +2,35 @@
 
 Gracenote TV listings to XMLTV for tvheadend EPG. Fetches from the Gracenote tvlistings API, caches up to 24h with incremental head+tail updates, outputs XMLTV and optional daily archives.
 
+## Installation
+
+**From a release (recommended)**  
+Download the latest [release](https://github.com/andrew867/gracenote-epg/releases) (tar.gz or zip), extract, then run from inside the extracted directory:
+
+```bash
+./install.sh                    # install to /opt/gracenote-epg (requires sudo)
+./install.sh /path/to/install   # or install to a directory of your choice
+```
+
+Edit `config.json` in the install directory, then copy the systemd units and enable the timer — see [packaging/systemd/README.md](packaging/systemd/README.md).
+
+**From npm**  
+```bash
+npm install -g gracenote-epg   # then run: gracenote-epg
+```
+
+**From source**  
+```bash
+git clone https://github.com/andrew867/gracenote-epg.git && cd gracenote-epg
+npm install && npm run build
+```
+
 ## Quick start
 
-1. **Install:** `npm install` then `npm run build`.
-2. **Config:** Copy `config.example.json` to `config.json` and set your lineup (e.g. `lineupId`, `headendId`, `postalCode`, `country`). See [Retrieving Lineup ID](https://github.com/jef/zap2xml/wiki/Retrieving-Lineup-ID) for how to get values.
-3. **Run once (incremental):** `node dist/index.js`
-4. **Run full refill:** `node dist/index.js --mode=full`
-5. **Web config UI:** `node dist/index.js --web` then open http://127.0.0.1:8765/
+1. **Config:** Copy `config.example.json` to `config.json` and set your lineup (e.g. `lineupId`, `headendId`, `postalCode`, `country`). See [Retrieving Lineup ID](https://github.com/jef/zap2xml/wiki/Retrieving-Lineup-ID) for how to get values.
+2. **Run once (incremental):** `node dist/index.js` (or `gracenote-epg` if installed via npm).
+3. **Run full refill:** `node dist/index.js --mode=full`
+4. **Web config UI:** `node dist/index.js --web` then open http://127.0.0.1:8765/
 
 ## Config file and web UI
 
@@ -49,7 +71,18 @@ See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-
 - `npm run start` – run incremental once
 - `npm run fetch-sample` – fetch one grid chunk and write `sample-grid.json`
 - `npm run test:run` – run tests
+- `npm run release:prepare` – build and assemble release directory (for packaging)
+
+## Build and release
+
+- **CI:** GitHub Actions runs tests and build on push/PR to `main` or `master` (see [.github/workflows/ci.yml](.github/workflows/ci.yml)).
+- **Releases:** Pushing a tag `v*` (e.g. `v1.0.0`) triggers [.github/workflows/release.yml](.github/workflows/release.yml): tests, build, then creation of a GitHub Release with `gracenote-epg-<version>.tar.gz` and `.zip` attached.
+- **Local packaging:** Run `npm run release:prepare` to produce `release/gracenote-epg-<version>/` with the same layout as the release archive; you can then create a tarball manually or test `install.sh` locally.
 
 ## API params (canonical URL)
 
 The app uses the same parameter set as the working browser request. See [docs/API-CHANGES.md](docs/API-CHANGES.md) for how this differs from zap2xml and the exact query string.
+
+## License
+
+MIT License. See [LICENSE](LICENSE). Copyright (c) 2026 Andrew Green.

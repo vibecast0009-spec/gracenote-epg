@@ -107,7 +107,7 @@ export function buildProgramsXml(data: GridApiResponse): string {
 
 export function buildXmltv(data: GridApiResponse): string {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<tv generator-info-name="gracenote-epg" generator-info-url="https://github.com/gracenote-epg">\n';
+  xml += '<tv generator-info-name="gracenote-epg" generator-info-url="https://github.com/andrew867/gracenote-epg">\n';
   xml += buildChannelsXml(data);
   xml += buildProgramsXml(data);
   xml += "</tv>\n";
