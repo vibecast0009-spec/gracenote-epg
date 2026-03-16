@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+config.json
+sample-grid.json
+cache.json
+archive/
+*.xmltv
+.xmltv

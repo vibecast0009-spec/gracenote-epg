@@ -1,0 +1,24 @@
+{
+  "baseUrl": "https://tvlistings.gracenote.com/api/grid",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0",
+  "lineupId": "CAN-lineupId-DEFAULT",
+  "timespan": "3",
+  "headendId": "lineupId",
+  "country": "CAN",
+  "timezone": "",
+  "device": "-",
+  "postalCode": "A1A1A1",
+  "isOverride": "true",
+  "pref": "16,128",
+  "userId": "-",
+  "aid": "orbebb",
+  "languagecode": "en-us",
+  "outputFile": "xmltv.xml",
+  "cacheFile": "cache.json",
+  "archiveDir": "archive",
+  "rateLimit": {
+    "requestDelayMs": 1500,
+    "maxRequestsPerMinute": 20
+  },
+  "webUiPort": 8765
+}
