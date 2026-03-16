@@ -1,0 +1,8 @@
+# Override to use a host directory for /data (so you can put config.json in ./epg-data).
+# Usage with daemon: docker compose -f docker-compose.yml -f docker-compose.daemon.yml -f docker-compose.bind-mount.yml up -d
+# Run once:          docker compose -f docker-compose.yml -f docker-compose.bind-mount.yml run --rm gracenote-epg
+
+services:
+  gracenote-epg:
+    volumes:
+      - ./epg-data:/data

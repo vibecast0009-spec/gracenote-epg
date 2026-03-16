@@ -66,6 +66,14 @@ function validate(config: Config): void {
   }
 }
 
+/** True if lineup looks configured (not the default placeholder). */
+export function isConfigReadyForGrab(config: Config): boolean {
+  const id = (config.lineupId || "").trim();
+  const headend = (config.headendId || "").trim();
+  if (!id || id.includes("lineupId") || headend === "lineupId") return false;
+  return true;
+}
+
 export function loadConfig(): Config {
   const path = getConfigFilePath();
   let config: Config;

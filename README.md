@@ -16,28 +16,42 @@ Edit `config.json` in the install directory, then copy the systemd units and ena
 
 **From npm**  
 ```bash
-npm install -g gracenote-epg   # then run: gracenote-epg
+npm install -g gracenote-epg
+gracenote-epg --help   # list commands
 ```
 
 **From source**  
 ```bash
 git clone https://github.com/andrew867/gracenote-epg.git && cd gracenote-epg
 npm install && npm run build
+# Run via: node dist/index.js ... or npm install -g . then gracenote-epg ...
 ```
+
+## Commands
+
+| Command | Description |
+|--------|-------------|
+| `gracenote-epg --web-ui` | Start web config UI (edit lineup in browser). Open http://127.0.0.1:8765/ |
+| `gracenote-epg --run-once` | Fetch EPG and write XMLTV once (incremental). Default if no flag given. |
+| `gracenote-epg --timer-trigger` | Same as --run-once; use in systemd timer or cron. |
+| `gracenote-epg --full` | Full refill: rebuild 24h cache from scratch. |
+| `gracenote-epg --serve` | After a run, serve xmltv.xml at http://host:8766/xmltv.xml (for tvheadend URL). |
+
+Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the global command, run from the directory that has `config.json` or set the path.
 
 ## Quick start
 
 1. **Config:** Copy `config.example.json` to `config.json` and set your lineup (e.g. `lineupId`, `headendId`, `postalCode`, `country`). See [Retrieving Lineup ID](https://github.com/jef/zap2xml/wiki/Retrieving-Lineup-ID) for how to get values.
-2. **Run once (incremental):** `node dist/index.js` (or `gracenote-epg` if installed via npm).
-3. **Run full refill:** `node dist/index.js --mode=full`
-4. **Web config UI:** `node dist/index.js --web` then open http://127.0.0.1:8765/
+2. **Web UI:** `gracenote-epg --web-ui` then open http://127.0.0.1:8765/
+3. **Run once:** `gracenote-epg --run-once` (or `gracenote-epg` with no args).
+4. **Systemd:** Enable the timer so it runs every 6h: `sudo systemctl enable --now gracenote-epg.timer`
 
 ## Config file and web UI
 
 - Config file: `config.json` (path via `--config=path` or `GRABBER_CONFIG_PATH`).
 - All grid URL parameters are configurable: `lineupId`, `timespan`, `headendId`, `country`, `timezone`, `device`, `postalCode`, `isOverride`, `pref`, `userId`, `aid`, `languagecode`.
 - App settings: `outputFile`, `cacheFile`, `archiveDir`, `rateLimit.requestDelayMs`, `rateLimit.maxRequestsPerMinute`, `webUiPort`, `servePort`.
-- Run with `--web` to open the web config UI (default http://127.0.0.1:8765/). Edit and Save to write back to `config.json`. Bind to localhost only unless you protect the endpoint.
+- Run with `--web-ui` (or `--web`) to open the web config UI (default http://127.0.0.1:8765/). Edit and Save to write back to `config.json`. Bind to localhost only unless you protect the endpoint.
 
 ## Rate limiting
 
@@ -58,7 +72,9 @@ See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-
 
 - **Build:** `docker compose build`
 - **Run once:** `docker compose run --rm gracenote-epg`
-- Put `config.json` in the mounted volume (e.g. `epg-data`). Default paths: `/data/config.json`, `/data/xmltv.xml`, `/data/cache.json`, `/data/archive/`.
+- **Run in background (update every 6h):** `docker compose -f docker-compose.yml -f docker-compose.daemon.yml up -d`
+- Put `config.json` in the mounted volume (e.g. create `config.json` from `config.example.json` in the volume). Default paths in container: `/data/config.json`, `/data/xmltv.xml`, `/data/cache.json`, `/data/archive/`.
+- See [docs/TEST-ON-ANOTHER-MACHINE.md](docs/TEST-ON-ANOTHER-MACHINE.md) for building a release tarball, npm install from tgz, and Docker install on another computer.
 
 ## Tvheadend
 

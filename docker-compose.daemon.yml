@@ -1,0 +1,8 @@
+# Optional: run gracenote-epg in the background, updating every 6 hours.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.daemon.yml up -d
+# Stop:  docker compose -f docker-compose.yml -f docker-compose.daemon.yml down
+
+services:
+  gracenote-epg:
+    command: ["sh", "-c", "while true; do node dist/index.js; sleep 21600; done"]
+    restart: unless-stopped

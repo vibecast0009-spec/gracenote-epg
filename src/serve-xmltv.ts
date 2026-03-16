@@ -16,9 +16,14 @@ export function startServeXmltv(outputFile: string, port: number, host = "0.0.0.
         res.end("xmltv.xml not found (run grab first)");
         return;
       }
-      const xml = readFileSync(path, "utf-8");
-      res.writeHead(200, { "Content-Type": "application/xml" });
-      res.end(xml);
+      try {
+        const xml = readFileSync(path, "utf-8");
+        res.writeHead(200, { "Content-Type": "application/xml" });
+        res.end(xml);
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Failed to read xmltv.xml: " + (err instanceof Error ? err.message : String(err)));
+      }
       return;
     }
     res.writeHead(404);

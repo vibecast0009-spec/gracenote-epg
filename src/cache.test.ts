@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { unlinkSync, existsSync } from "node:fs";
+import { unlinkSync, existsSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   emptyCache,
@@ -64,6 +64,11 @@ describe("cache", () => {
     const loaded = loadCache(CACHE_PATH);
     expect(loaded?.channels.length).toBe(1);
     expect(loaded?.channels[0]?.channelId).toBe("1");
+  });
+
+  it("loadCache returns null when file is invalid JSON", () => {
+    writeFileSync(CACHE_PATH, "not valid json {", "utf-8");
+    expect(loadCache(CACHE_PATH)).toBeNull();
   });
 
   it("mergeChannels appends events by channelId", () => {

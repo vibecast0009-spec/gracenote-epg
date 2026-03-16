@@ -44,10 +44,14 @@ export function gridToCacheData(grid: GridApiResponse, windowStart: number, wind
 export function loadCache(cachePath: string): CacheData | null {
   const path = resolve(cachePath);
   if (!existsSync(path)) return null;
-  const raw = readFileSync(path, "utf-8");
-  const data = JSON.parse(raw) as CacheData;
-  if (!data.meta || !Array.isArray(data.channels)) return null;
-  return data;
+  try {
+    const raw = readFileSync(path, "utf-8");
+    const data = JSON.parse(raw) as CacheData;
+    if (!data.meta || !Array.isArray(data.channels)) return null;
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 export function saveCache(cachePath: string, data: CacheData): void {

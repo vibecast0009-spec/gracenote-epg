@@ -19,4 +19,9 @@ cp scripts/install.sh "$OUT/"
 chmod +x "$OUT/install.sh"
 
 echo "Release dir: $ROOT/$OUT"
-echo "Create archive: tar czvf gracenote-epg-${VERSION}.tar.gz -C release gracenote-epg-${VERSION}"
+tar czvf "$ROOT/release/gracenote-epg-${VERSION}.tar.gz" -C "$ROOT/release" "gracenote-epg-${VERSION}"
+echo "Created release/gracenote-epg-${VERSION}.tar.gz"
+if command -v zip &>/dev/null; then
+  (cd "$ROOT/release" && zip -r "gracenote-epg-${VERSION}.zip" "gracenote-epg-${VERSION}")
+  echo "Created release/gracenote-epg-${VERSION}.zip"
+fi

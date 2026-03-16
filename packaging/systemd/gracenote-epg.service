@@ -5,14 +5,15 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-# Set WorkingDirectory to the directory containing config.json and where output/cache paths are relative to
+# WorkingDirectory must contain config.json (or set GRABBER_CONFIG_PATH)
 WorkingDirectory=/var/lib/gracenote-epg
-ExecStart=/usr/bin/node /opt/gracenote-epg/dist/index.js
-# Or if installed via npm/node: ExecStart=/usr/bin/npx gracenote-epg
+# When installed via npm: npm install -g gracenote-epg
+ExecStart=/usr/bin/env gracenote-epg --timer-trigger
+# When installed from release archive (no npm -g), use instead:
+# ExecStart=/usr/bin/node /opt/gracenote-epg/dist/index.js --timer-trigger
 # Optional: User=tvheadend
 # Optional: Group=tvheadend
-# Config path: create config.json in WorkingDirectory or set:
-# Environment=GRABBER_CONFIG_PATH=/etc/gracenote-epg/config.json
+# Optional config path: Environment=GRABBER_CONFIG_PATH=/etc/gracenote-epg/config.json
 
 [Install]
 WantedBy=multi-user.target
