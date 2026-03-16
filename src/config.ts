@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import type { Config } from "./config-schema.js";
 import { DEFAULT_CONFIG } from "./config-schema.js";
 
@@ -86,8 +86,8 @@ export function loadConfig(): Config {
 
 export function saveConfig(config: Config): void {
   const path = getConfigFilePath();
-  const json = JSON.stringify(config, null, 2);
-  writeFileSync(path, json, "utf-8");
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, JSON.stringify(config, null, 2), "utf-8");
 }
 
 export function getConfigFilePathPublic(): string {
