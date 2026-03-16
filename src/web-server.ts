@@ -46,6 +46,11 @@ export function startWebServer(port: number): void {
           sendJson(res, 400, { ok: false, error: "Invalid webUiPort" });
           return;
         }
+        const h = merged.scheduleWindowHours ?? 24;
+        if (!Number.isFinite(h) || h < 1 || h > 168) {
+          sendJson(res, 400, { ok: false, error: "scheduleWindowHours must be 1–168" });
+          return;
+        }
         saveConfig(merged);
         sendJson(res, 200, { ok: true });
       } catch (e) {

@@ -16,6 +16,7 @@
   "outputFile": "xmltv.xml",
   "cacheFile": "cache.json",
   "archiveDir": "archive",
+  "scheduleWindowHours": 24,
   "rateLimit": {
     "requestDelayMs": 1500,
     "maxRequestsPerMinute": 20

@@ -25,9 +25,9 @@ Usage: gracenote-epg [options]
 
 Modes (run one per invocation):
   --web-ui                 Start web config UI only (edit lineup, save config). Open http://localhost:8765/ (listens on 0.0.0.0)
-  --run-once               Fetch EPG and write XMLTV once (incremental: head + tail 6h). Default if no mode given.
+  --run-once               Fetch EPG and write XMLTV once (incremental: refresh at least half the schedule window, extend tail to full window). Default if no mode given.
   --timer-trigger          Same as --run-once; use in systemd timer or cron.
-  --full                   Full refill: rebuild 24h cache from scratch, then write XMLTV.
+  --full                   Full refill: rebuild cache from scratch up to config scheduleWindowHours (default 24h, max 7 days).
 
 Other options:
   --serve                  After a run, serve xmltv.xml at http://localhost:8766/xmltv.xml (listens on 0.0.0.0) for tvheadend URL
@@ -38,7 +38,7 @@ Examples:
   gracenote-epg --web-ui              # Configure lineup in browser
   gracenote-epg --run-once            # Update EPG now
   gracenote-epg --timer-trigger       # For systemd/cron (incremental run)
-  gracenote-epg --full                # Force full 24h refill
+  gracenote-epg --full                # Force full refill up to scheduleWindowHours
 `);
     process.exit(0);
   }

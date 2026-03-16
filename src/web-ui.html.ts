@@ -43,6 +43,7 @@ export function getConfigFormHtml(): string {
       <label>outputFile <input name="outputFile" type="text"></label>
       <label>cacheFile <input name="cacheFile" type="text"></label>
       <label>archiveDir <input name="archiveDir" type="text"></label>
+      <label>scheduleWindowHours (1–168, default 24) <input name="scheduleWindowHours" type="number" min="1" max="168"></label>
       <label>requestDelayMs <input name="requestDelayMs" type="number"></label>
       <label>maxRequestsPerMinute <input name="maxRequestsPerMinute" type="number"></label>
       <label>webUiPort <input name="webUiPort" type="number"></label>
@@ -73,6 +74,7 @@ export function getConfigFormHtml(): string {
       form.outputFile.value = c.outputFile ?? '';
       form.cacheFile.value = c.cacheFile ?? '';
       form.archiveDir.value = c.archiveDir ?? '';
+      form.scheduleWindowHours.value = c.scheduleWindowHours ?? 24;
       form.requestDelayMs.value = c.rateLimit?.requestDelayMs ?? 1500;
       form.maxRequestsPerMinute.value = c.rateLimit?.maxRequestsPerMinute ?? 20;
       form.webUiPort.value = c.webUiPort ?? 8765;
@@ -97,6 +99,7 @@ export function getConfigFormHtml(): string {
         outputFile: form.outputFile.value,
         cacheFile: form.cacheFile.value,
         archiveDir: form.archiveDir.value,
+        scheduleWindowHours: Number(form.scheduleWindowHours.value) || 24,
         rateLimit: {
           requestDelayMs: Number(form.requestDelayMs.value),
           maxRequestsPerMinute: Number(form.maxRequestsPerMinute.value)

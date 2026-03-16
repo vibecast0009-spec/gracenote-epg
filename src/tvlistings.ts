@@ -11,13 +11,16 @@ import {
   eventsInWindow,
   sameEventsInWindow,
   chunkStart6h,
-  chunkEnd6h,
   type CacheData,
 } from "./cache.js";
 
 const SIX_HOURS = 6 * 3600;
-const MAX_FULL_HOURS = 24;
 const CHUNK_HOURS = 6;
+
+function getScheduleWindowHours(config: Config): number {
+  const h = config.scheduleWindowHours ?? 24;
+  return Math.max(1, Math.min(168, Math.floor(h)));
+}
 
 async function fetchWithRetries(
   config: Config,
@@ -39,14 +42,14 @@ async function fetchWithRetries(
   throw last ?? new Error("fetch failed");
 }
 
-/** Full fill: fetch 24+ hours in chunks, merge, persist. Returns cache data. */
+/** Full fill: fetch up to scheduleWindowHours in 6h chunks, merge, persist. --full uses config max. */
 export async function fullFill(
   config: Config,
   limiter: RateLimiter
 ): Promise<CacheData> {
   const now = Math.floor(Date.now() / 1000);
   const start = chunkStart6h(now);
-  const totalHours = Math.min(MAX_FULL_HOURS, 24);
+  const totalHours = getScheduleWindowHours(config);
   let data: CacheData = emptyCache();
   data.meta.windowStart = start;
   data.meta.windowEnd = start;
@@ -62,20 +65,29 @@ export async function fullFill(
   return data;
 }
 
-/** Fetch head 6h (from now), diff with cache, merge if changed. Returns true if cache was updated. */
-export async function fetchHead6h(
+/** Fetch head window (at least half of scheduleWindowHours from now), diff with cache, replace if changed. Returns true if cache was updated. */
+export async function fetchHead(
   config: Config,
   data: CacheData,
   limiter: RateLimiter
 ): Promise<boolean> {
   const now = Math.floor(Date.now() / 1000);
+  const windowHours = getScheduleWindowHours(config);
+  const headHours = Math.max(CHUNK_HOURS, Math.ceil(windowHours / 2));
+  const numHeadChunks = Math.ceil(headHours / CHUNK_HOURS);
   const headStart = chunkStart6h(now);
-  const headEnd = chunkEnd6h(headStart);
+  const headEnd = headStart + numHeadChunks * SIX_HOURS;
 
-  const grid = await fetchWithRetries(config, headStart, CHUNK_HOURS, limiter);
+  const mergedChannels: typeof data.channels = [];
+  for (let i = 0; i < numHeadChunks; i++) {
+    const t = headStart + i * SIX_HOURS;
+    const grid = await fetchWithRetries(config, t, CHUNK_HOURS, limiter);
+    mergeChannels(mergedChannels, grid);
+  }
+  const mergedGrid = { channels: mergedChannels };
 
   let changed = false;
-  for (const ch of grid.channels) {
+  for (const ch of mergedGrid.channels) {
     const existing = data.channels.find((c) => c.channelId === ch.channelId);
     const cached = existing ? eventsInWindow(existing.events, headStart, headEnd) : [];
     const newEv = ch.events;
@@ -84,22 +96,26 @@ export async function fetchHead6h(
       break;
     }
   }
-  if (changed) replaceEventsInWindow(data, headStart, headEnd, grid);
+  if (changed) replaceEventsInWindow(data, headStart, headEnd, mergedGrid);
   return changed;
 }
 
-/** Fetch tail 6h at end of cache window and merge. */
-export async function fetchTail6h(
+/** Fetch tail 6h chunks at end of cache until window covers scheduleWindowHours from now. */
+export async function fetchTail(
   config: Config,
   data: CacheData,
   limiter: RateLimiter
 ): Promise<void> {
-  const tailStart = data.meta.windowEnd;
-  await limiter.wait();
-  const grid = await fetchWithRetries(config, tailStart, CHUNK_HOURS, limiter);
-  mergeChannels(data.channels, grid);
-  data.meta.windowEnd = tailStart + SIX_HOURS;
-  data.meta.updatedAt = Math.floor(Date.now() / 1000);
+  const now = Math.floor(Date.now() / 1000);
+  const targetEnd = now + getScheduleWindowHours(config) * 3600;
+  while (data.meta.windowEnd < targetEnd) {
+    const tailStart = data.meta.windowEnd;
+    await limiter.wait();
+    const grid = await fetchWithRetries(config, tailStart, CHUNK_HOURS, limiter);
+    mergeChannels(data.channels, grid);
+    data.meta.windowEnd = tailStart + SIX_HOURS;
+    data.meta.updatedAt = Math.floor(Date.now() / 1000);
+  }
 }
 
 /** Load cache or return null. */
@@ -107,7 +123,7 @@ export function loadCacheData(config: Config): CacheData | null {
   return loadCache(config.cacheFile);
 }
 
-/** Run incremental: head 6h + tail 6h, optionally full fill if empty. Returns true if cache dirty. */
+/** Run incremental: refresh at least half the schedule window (head) and extend tail to full window. Returns true if cache dirty. */
 export async function runIncremental(
   config: Config,
   limiter: RateLimiter
@@ -117,13 +133,13 @@ export async function runIncremental(
     data = await fullFill(config, limiter);
     return { dirty: true, data };
   }
-  const headChanged = await fetchHead6h(config, data, limiter);
-  await fetchTail6h(config, data, limiter);
+  const headChanged = await fetchHead(config, data, limiter);
+  await fetchTail(config, data, limiter);
   saveCache(config.cacheFile, data);
   return { dirty: headChanged, data };
 }
 
-/** Run full: refill cache from scratch (24h). */
+/** Run full: refill cache from scratch up to config.scheduleWindowHours (max 7 days). */
 export async function runFull(config: Config, limiter: RateLimiter): Promise<CacheData> {
   const data = await fullFill(config, limiter);
   saveCache(config.cacheFile, data);

@@ -43,17 +43,23 @@ export interface AppConfig {
   userAgent: string;
   /** Path to write live XMLTV output */
   outputFile: string;
-  /** Path to cache file (rolling 24h JSON) */
+  /** Path to cache file (rolling window JSON) */
   cacheFile: string;
   /** Directory for daily archive XMLTV files (YYYY-MM-DD.xml) */
   archiveDir: string;
+  /** How many hours (or days) forward to load listings; 24–168 (7 days). Rolling update refreshes at least half each run. */
+  scheduleWindowHours: number;
   /** Rate limiting */
   rateLimit: RateLimitConfig;
   /** Web config UI port (0 = disabled) */
   webUiPort: number;
-  /** Port for serving xmltv.xml (--serve mode, for tvheadend URL) */
+  /** Port for serving xmltv.xml (--serve mode) */
   servePort: number;
 }
+
+/** Default and max schedule window (hours). */
+export const DEFAULT_SCHEDULE_WINDOW_HOURS = 24;
+export const MAX_SCHEDULE_WINDOW_HOURS = 24 * 7; // 7 days
 
 export type Config = GridConfig & AppConfig;
 
@@ -81,6 +87,7 @@ export const DEFAULT_CONFIG: Config = {
   outputFile: "xmltv.xml",
   cacheFile: "cache.json",
   archiveDir: "archive",
+  scheduleWindowHours: DEFAULT_SCHEDULE_WINDOW_HOURS,
   rateLimit: {
     requestDelayMs: 1500,
     maxRequestsPerMinute: 20,

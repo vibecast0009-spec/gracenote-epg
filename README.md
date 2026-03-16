@@ -1,6 +1,6 @@
 # gracenote-epg
 
-Gracenote TV listings to XMLTV for tvheadend EPG. Fetches from the Gracenote tvlistings API, caches up to 24h with incremental head+tail updates, outputs XMLTV and optional daily archives.
+Gracenote TV listings to XMLTV for tvheadend EPG. Fetches from the Gracenote tvlistings API, caches a configurable window (default 24h, up to 7 days) with rolling updates, outputs XMLTV and optional daily archives.
 
 ## Installation
 
@@ -34,7 +34,7 @@ npm install && npm run build
 | `gracenote-epg --web-ui` | Start web config UI (edit lineup in browser). Open http://localhost:8765/ (listens on 0.0.0.0) |
 | `gracenote-epg --run-once` | Fetch EPG and write XMLTV once (incremental). Default if no flag given. |
 | `gracenote-epg --timer-trigger` | Same as --run-once; use in systemd timer or cron. |
-| `gracenote-epg --full` | Full refill: rebuild 24h cache from scratch. |
+| `gracenote-epg --full` | Full refill: rebuild cache from scratch up to scheduleWindowHours (default 24h, max 7 days). |
 | `gracenote-epg --serve` | After a run, serve xmltv.xml at http://localhost:8766/xmltv.xml (listens on 0.0.0.0, for tvheadend URL). |
 
 Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the global command, run from the directory that has `config.json` or set the path.
@@ -50,7 +50,7 @@ Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the gl
 
 - Config file: `config.json` (path via `--config=path` or `GRABBER_CONFIG_PATH`).
 - All grid URL parameters are configurable: `lineupId`, `timespan`, `headendId`, `country`, `timezone`, `device`, `postalCode`, `isOverride`, `pref`, `userId`, `aid`, `languagecode`.
-- App settings: `outputFile`, `cacheFile`, `archiveDir`, `rateLimit.requestDelayMs`, `rateLimit.maxRequestsPerMinute`, `webUiPort`, `servePort`.
+- App settings: `outputFile`, `cacheFile`, `archiveDir`, `scheduleWindowHours` (1–168, default 24; how far forward to load listings; rolling update refreshes at least half each run; `--full` uses this max), `rateLimit.requestDelayMs`, `rateLimit.maxRequestsPerMinute`, `webUiPort`, `servePort`.
 - Run with `--web-ui` (or `--web`) to open the web config UI (http://localhost:8765/). Listens on 0.0.0.0 so you can use the machine’s IP from another device. Edit and Save to write back to `config.json`. Protect the endpoint if the host is exposed.
 
 ## Rate limiting
@@ -61,8 +61,8 @@ Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the gl
 
 ## Full vs incremental run
 
-- **Incremental (default):** Load cache, fetch head 6h (from now) and tail 6h (at end of cache), diff/merge, write XMLTV only if head changed. Extends the rolling 24h window.
-- **Full:** Refill cache from scratch (24h of data in 6h chunks), then write XMLTV. Use when cache is missing or corrupted, or to force refresh.
+- **Incremental (default):** Load cache, refresh at least half of the schedule window from “now” (head), extend the tail so the cache covers the full `scheduleWindowHours`. Write XMLTV only if the head data changed. Config `scheduleWindowHours` (default 24, max 168 = 7 days) sets how far forward to load.
+- **Full (`--full`):** Refill cache from scratch up to `scheduleWindowHours` (in 6h API chunks), then write XMLTV. Use when cache is missing or corrupted, or to force refresh.
 
 ## systemd
 
@@ -78,8 +78,10 @@ See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-
 
 ## Tvheadend
 
-- **File:** In tvheadend: Configuration → EPG → EPG Grabbers → Internal XMLTV. Set the path to your `outputFile` (e.g. `/var/lib/gracenote-epg/xmltv.xml`).
-- **URL:** Run with `--serve` so the app serves the XMLTV at `http://<host>:8766/xmltv.xml` (listens on 0.0.0.0). In tvheadend set the EPG URL to that address.
+1. **Expert view:** Under **Configuration → Base**, enable **Expert** view so EPG options are visible.
+2. **Grabber:** Under **Configuration → Channel EPG → EPG Grabber Modules**, enable the **Internal** or **URL** grabber (Internal XMLTV for file, or the URL grabber for HTTP).
+3. **File path:** For the internal file grabber, set the path to your `outputFile` (e.g. `/var/lib/gracenote-epg/xmltv.xml`). If tvheadend runs in Docker, the internal grabber uses `/{yourpath}/tvheadend/data/data/` by default — save your XML there (e.g. as `xmltv.xml`); tvheadend will read any and all `.xml` files in that folder.
+4. **URL:** Alternatively run gracenote-epg with `--serve` so it serves XMLTV at `http://<host>:8766/xmltv.xml`. In tvheadend use the URL grabber and set the EPG URL to that address.
 
 ## Scripts
 

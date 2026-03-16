@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Config } from "./config-schema.js";
-import { DEFAULT_CONFIG, PLACEHOLDER_HEADEND_ID, PLACEHOLDER_LINEUP_ID } from "./config-schema.js";
+import { DEFAULT_CONFIG, MAX_SCHEDULE_WINDOW_HOURS, PLACEHOLDER_HEADEND_ID, PLACEHOLDER_LINEUP_ID } from "./config-schema.js";
 
 const CONFIG_FILE_ENV = "GRABBER_CONFIG_PATH";
 const CONFIG_FILE_CLI_FLAG = "--config=";
@@ -51,6 +51,8 @@ function applyOverrides(config: Config): Config {
   out.webUiPort = n(port, config.webUiPort);
   const servePort = parseEnvOrCli("servePort", "SERVE_PORT");
   out.servePort = n(servePort, config.servePort ?? 8766);
+  const scheduleWindow = parseEnvOrCli("scheduleWindowHours", "SCHEDULE_WINDOW_HOURS");
+  out.scheduleWindowHours = n(scheduleWindow, config.scheduleWindowHours ?? 24);
   return out;
 }
 
@@ -63,6 +65,10 @@ function validate(config: Config): void {
   }
   if (config.webUiPort < 0 || config.webUiPort > 65535) {
     throw new Error("config.webUiPort must be 0-65535");
+  }
+  const h = config.scheduleWindowHours ?? 24;
+  if (!Number.isFinite(h) || h < 1 || h > MAX_SCHEDULE_WINDOW_HOURS) {
+    throw new Error(`config.scheduleWindowHours must be 1–${MAX_SCHEDULE_WINDOW_HOURS}`);
   }
 }
 
@@ -84,6 +90,9 @@ export function loadConfig(): Config {
     config = { ...DEFAULT_CONFIG, ...parsed };
     if (parsed.rateLimit && typeof parsed.rateLimit === "object") {
       config.rateLimit = { ...DEFAULT_CONFIG.rateLimit, ...parsed.rateLimit };
+    }
+    if (config.scheduleWindowHours == null || !Number.isFinite(config.scheduleWindowHours)) {
+      config.scheduleWindowHours = DEFAULT_CONFIG.scheduleWindowHours;
     }
   } else {
     config = { ...DEFAULT_CONFIG };
