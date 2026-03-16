@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   escapeXml,
   formatDate,
+  normalizeImageUrl,
+  TMS_IMAGE_BASE,
   buildChannelsXml,
   buildProgramsXml,
   buildXmltv,
@@ -19,6 +21,29 @@ describe("escapeXml", () => {
 describe("formatDate", () => {
   it("formats ISO date to XMLTV", () => {
     expect(formatDate("2025-07-18T19:00:00Z")).toBe("20250718190000 +0000");
+  });
+});
+
+describe("normalizeImageUrl", () => {
+  it("rewrites zap2it.tmsimg.com to zpmc.tmsimg.com", () => {
+    expect(
+      normalizeImageUrl("https://zap2it.tmsimg.com/assets/p123.jpg")
+    ).toBe("https://zpmc.tmsimg.com/assets/p123.jpg");
+  });
+  it("rewrites protocol-relative zap2it URL to https zpmc", () => {
+    expect(normalizeImageUrl("//zap2it.tmsimg.com/h3/NowShowing/1.png")).toBe(
+      "https://zpmc.tmsimg.com/h3/NowShowing/1.png"
+    );
+  });
+  it("leaves zpmc URLs unchanged", () => {
+    const url = "https://zpmc.tmsimg.com/assets/p456.jpg";
+    expect(normalizeImageUrl(url)).toBe(url);
+  });
+});
+
+describe("TMS_IMAGE_BASE", () => {
+  it("is zpmc.tmsimg.com", () => {
+    expect(TMS_IMAGE_BASE).toBe("https://zpmc.tmsimg.com");
   });
 });
 
@@ -77,5 +102,38 @@ describe("buildXmltv", () => {
     expect(xml).toContain("20250718190000 +0000");
     expect(xml).toContain("<title>Show</title>");
     expect(xml).toContain("</tv>");
+  });
+
+  it("uses zpmc.tmsimg.com for event thumbnail and contains no zap2it.tmsimg.com", () => {
+    const gridWithThumb: GridApiResponse = {
+      channels: [
+        {
+          ...minimalGrid.channels[0]!,
+          events: [
+            {
+              ...minimalGrid.channels[0]!.events[0]!,
+              thumbnail: "p20962079_b_v13_ac",
+            },
+          ],
+        },
+      ],
+    };
+    const xml = buildXmltv(gridWithThumb);
+    expect(xml).toContain("zpmc.tmsimg.com/assets/p20962079_b_v13_ac.jpg");
+    expect(xml).not.toContain("zap2it.tmsimg.com");
+  });
+
+  it("rewrites channel thumbnail from zap2it to zpmc when present", () => {
+    const gridWithChannelThumb: GridApiResponse = {
+      channels: [
+        {
+          ...minimalGrid.channels[0]!,
+          thumbnail: "//zap2it.tmsimg.com/h3/NowShowing/42.png?w=55",
+        },
+      ],
+    };
+    const xml = buildXmltv(gridWithChannelThumb);
+    expect(xml).toContain("zpmc.tmsimg.com/h3/NowShowing/42.png");
+    expect(xml).not.toContain("zap2it.tmsimg.com");
   });
 });

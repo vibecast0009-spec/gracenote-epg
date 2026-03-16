@@ -1,5 +1,19 @@
 import type { GridApiResponse } from "./types.js";
 
+/** Canonical TMS image base (new server domain). */
+export const TMS_IMAGE_BASE = "https://zpmc.tmsimg.com";
+
+/**
+ * Rewrite any zap2it.tmsimg.com (or zap2it.tms*) URL to zpmc.tmsimg.com.
+ * If the string is protocol-relative (//...), returns https + new domain path.
+ */
+export function normalizeImageUrl(url: string): string {
+  if (!url) return url;
+  const normalized = url.replace(/zap2it\.tmsimg\.com/gi, "zpmc.tmsimg.com");
+  if (normalized.startsWith("//")) return "https:" + normalized;
+  return normalized;
+}
+
 export function escapeXml(unsafe: string): string {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -33,9 +47,10 @@ export function buildChannelsXml(data: GridApiResponse): string {
       xml += `    <display-name>${escapeXml(channel.channelNo)}</display-name>\n`;
     }
     if (channel.thumbnail) {
-      xml += `    <icon src="${escapeXml(
-        channel.thumbnail.startsWith("http") ? channel.thumbnail : "https:" + channel.thumbnail
-      )}" />\n`;
+      const raw = channel.thumbnail.startsWith("http")
+        ? channel.thumbnail
+        : "https:" + channel.thumbnail;
+      xml += `    <icon src="${escapeXml(normalizeImageUrl(raw))}" />\n`;
     }
     xml += "  </channel>\n";
   }
@@ -79,8 +94,8 @@ export function buildProgramsXml(data: GridApiResponse): string {
       }
       if (event.thumbnail) {
         const src = event.thumbnail.startsWith("http")
-          ? event.thumbnail
-          : "https://zap2it.tmsimg.com/assets/" + event.thumbnail + ".jpg";
+          ? normalizeImageUrl(event.thumbnail)
+          : TMS_IMAGE_BASE + "/assets/" + event.thumbnail + ".jpg";
         xml += `    <icon src="${escapeXml(src)}" />\n`;
       }
       xml += "  </programme>\n";
