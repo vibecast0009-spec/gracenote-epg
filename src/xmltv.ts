@@ -93,10 +93,11 @@ export function buildProgramsXml(data: GridApiResponse): string {
         )}.</episode-num>\n`;
       }
       if (event.thumbnail) {
-        const src = event.thumbnail.startsWith("http")
-          ? normalizeImageUrl(event.thumbnail)
-          : TMS_IMAGE_BASE + "/assets/" + event.thumbnail + ".jpg";
-        xml += `    <icon src="${escapeXml(src)}" />\n`;
+        const src =
+          event.thumbnail.startsWith("http") || event.thumbnail.startsWith("//")
+            ? event.thumbnail
+            : TMS_IMAGE_BASE + "/assets/" + event.thumbnail + ".jpg";
+        xml += `    <icon src="${escapeXml(normalizeImageUrl(src))}" />\n`;
       }
       xml += "  </programme>\n";
     }

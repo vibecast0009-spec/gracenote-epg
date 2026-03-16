@@ -136,4 +136,24 @@ describe("buildXmltv", () => {
     expect(xml).toContain("zpmc.tmsimg.com/h3/NowShowing/42.png");
     expect(xml).not.toContain("zap2it.tmsimg.com");
   });
+
+  it("rewrites full event thumbnail URL from zap2it to zpmc", () => {
+    const gridWithFullUrlThumb: GridApiResponse = {
+      channels: [
+        {
+          ...minimalGrid.channels[0]!,
+          events: [
+            {
+              ...minimalGrid.channels[0]!.events[0]!,
+              thumbnail:
+                "https://zap2it.tmsimg.com/assets/p16370325_e_v13_aa.jpg",
+            },
+          ],
+        },
+      ],
+    };
+    const xml = buildXmltv(gridWithFullUrlThumb);
+    expect(xml).toContain("zpmc.tmsimg.com/assets/p16370325_e_v13_aa.jpg");
+    expect(xml).not.toContain("zap2it.tmsimg.com");
+  });
 });
