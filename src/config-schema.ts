@@ -57,14 +57,18 @@ export interface AppConfig {
 
 export type Config = GridConfig & AppConfig;
 
-/** Defaults matching canonical URL: CAN, A1A1A1, device=-, pref=16,128, languagecode=en-us */
+/** Placeholder values in config (replace with your real lineup from Gracenote/tvlistings). */
+export const PLACEHOLDER_LINEUP_ID = "REPLACE-WITH-YOUR-LINEUP-ID";
+export const PLACEHOLDER_HEADEND_ID = "REPLACE-WITH-YOUR-HEADEND-ID";
+
+/** Defaults: placeholder lineup, CAN, device=-, pref=16,128, languagecode=en-us */
 export const DEFAULT_CONFIG: Config = {
   baseUrl: "https://tvlistings.gracenote.com/api/grid",
   userAgent:
     "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0",
-  lineupId: "CAN-lineupId-DEFAULT",
+  lineupId: PLACEHOLDER_LINEUP_ID,
   timespan: "3",
-  headendId: "lineupId",
+  headendId: PLACEHOLDER_HEADEND_ID,
   country: "CAN",
   timezone: "",
   device: "-",

@@ -31,18 +31,18 @@ npm install && npm run build
 
 | Command | Description |
 |--------|-------------|
-| `gracenote-epg --web-ui` | Start web config UI (edit lineup in browser). Open http://127.0.0.1:8765/ |
+| `gracenote-epg --web-ui` | Start web config UI (edit lineup in browser). Open http://localhost:8765/ (listens on 0.0.0.0) |
 | `gracenote-epg --run-once` | Fetch EPG and write XMLTV once (incremental). Default if no flag given. |
 | `gracenote-epg --timer-trigger` | Same as --run-once; use in systemd timer or cron. |
 | `gracenote-epg --full` | Full refill: rebuild 24h cache from scratch. |
-| `gracenote-epg --serve` | After a run, serve xmltv.xml at http://host:8766/xmltv.xml (for tvheadend URL). |
+| `gracenote-epg --serve` | After a run, serve xmltv.xml at http://localhost:8766/xmltv.xml (listens on 0.0.0.0, for tvheadend URL). |
 
 Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the global command, run from the directory that has `config.json` or set the path.
 
 ## Quick start
 
 1. **Config:** Copy `config.example.json` to `config.json` and set your lineup (e.g. `lineupId`, `headendId`, `postalCode`, `country`). See [Retrieving Lineup ID](https://github.com/jef/zap2xml/wiki/Retrieving-Lineup-ID) for how to get values.
-2. **Web UI:** `gracenote-epg --web-ui` then open http://127.0.0.1:8765/
+2. **Web UI:** `gracenote-epg --web-ui` then open http://localhost:8765/
 3. **Run once:** `gracenote-epg --run-once` (or `gracenote-epg` with no args).
 4. **Systemd:** Enable the timer so it runs every 6h: `sudo systemctl enable --now gracenote-epg.timer`
 
@@ -51,7 +51,7 @@ Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the gl
 - Config file: `config.json` (path via `--config=path` or `GRABBER_CONFIG_PATH`).
 - All grid URL parameters are configurable: `lineupId`, `timespan`, `headendId`, `country`, `timezone`, `device`, `postalCode`, `isOverride`, `pref`, `userId`, `aid`, `languagecode`.
 - App settings: `outputFile`, `cacheFile`, `archiveDir`, `rateLimit.requestDelayMs`, `rateLimit.maxRequestsPerMinute`, `webUiPort`, `servePort`.
-- Run with `--web-ui` (or `--web`) to open the web config UI (default http://127.0.0.1:8765/). Edit and Save to write back to `config.json`. Bind to localhost only unless you protect the endpoint.
+- Run with `--web-ui` (or `--web`) to open the web config UI (http://localhost:8765/). Listens on 0.0.0.0 so you can use the machine’s IP from another device. Edit and Save to write back to `config.json`. Protect the endpoint if the host is exposed.
 
 ## Rate limiting
 
@@ -79,7 +79,7 @@ See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-
 ## Tvheadend
 
 - **File:** In tvheadend: Configuration → EPG → EPG Grabbers → Internal XMLTV. Set the path to your `outputFile` (e.g. `/var/lib/gracenote-epg/xmltv.xml`).
-- **URL:** Run with `--serve` so the app serves the XMLTV at `http://host:8766/xmltv.xml`. In tvheadend set the EPG URL to that address.
+- **URL:** Run with `--serve` so the app serves the XMLTV at `http://<host>:8766/xmltv.xml` (listens on 0.0.0.0). In tvheadend set the EPG URL to that address.
 
 ## Scripts
 

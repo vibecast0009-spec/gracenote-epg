@@ -56,8 +56,8 @@ export function startWebServer(port: number): void {
     send(res, 404, "Not Found", "text/plain");
   });
 
-  const host = "127.0.0.1";
+  const host = "0.0.0.0";
   server.listen(port, host, () => {
-    console.error(`Web config UI: http://${host}:${port}/`);
+    console.error(`Web config UI: http://localhost:${port}/ (listening on ${host})`);
   });
 }

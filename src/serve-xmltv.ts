@@ -30,6 +30,6 @@ export function startServeXmltv(outputFile: string, port: number, host = "0.0.0.
     res.end();
   });
   server.listen(port, host, () => {
-    console.error(`Serving XMLTV at http://${host}:${port}/xmltv.xml`);
+    console.error(`Serving XMLTV at http://localhost:${port}/xmltv.xml (listening on ${host})`);
   });
 }

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { loadConfig, isConfigReadyForGrab } from "./config.js";
@@ -23,13 +24,13 @@ Usage: gracenote-epg [options]
        (or: node dist/index.js [options] when run from source)
 
 Modes (run one per invocation):
-  --web-ui                 Start web config UI only (edit lineup, save config). Open http://127.0.0.1:8765/
+  --web-ui                 Start web config UI only (edit lineup, save config). Open http://localhost:8765/ (listens on 0.0.0.0)
   --run-once               Fetch EPG and write XMLTV once (incremental: head + tail 6h). Default if no mode given.
   --timer-trigger          Same as --run-once; use in systemd timer or cron.
   --full                   Full refill: rebuild 24h cache from scratch, then write XMLTV.
 
 Other options:
-  --serve                  After a run, serve xmltv.xml at http://host:8766/xmltv.xml for tvheadend URL
+  --serve                  After a run, serve xmltv.xml at http://localhost:8766/xmltv.xml (listens on 0.0.0.0) for tvheadend URL
   --config=path            Config file path (default: config.json in current dir)
   --help                   Show this help
 
@@ -61,9 +62,9 @@ Examples:
 
   // Grabs require a configured lineup; avoid crashing on bad API calls
   if (!isConfigReadyForGrab(config)) {
-    console.error("gracenote-epg: config not set up. Set your lineup first.");
-    console.error("  Run:  gracenote-epg --web-ui   and open http://127.0.0.1:8765/");
-    console.error("  Or edit config.json with your lineupId, headendId, postalCode, country.");
+    console.error("gracenote-epg: lineup not configured. config.json still has placeholder values (lineupId/headendId).");
+    console.error("  Edit config.json with your real lineupId, headendId, postalCode, country from your Gracenote/tvlistings account.");
+    console.error("  Or run  gracenote-epg --web-ui  and open http://localhost:8765/  to configure in the browser.");
     process.exit(1);
   }
 

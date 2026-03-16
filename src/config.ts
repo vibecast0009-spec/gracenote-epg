@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Config } from "./config-schema.js";
-import { DEFAULT_CONFIG } from "./config-schema.js";
+import { DEFAULT_CONFIG, PLACEHOLDER_HEADEND_ID, PLACEHOLDER_LINEUP_ID } from "./config-schema.js";
 
 const CONFIG_FILE_ENV = "GRABBER_CONFIG_PATH";
 const CONFIG_FILE_CLI_FLAG = "--config=";
@@ -70,7 +70,8 @@ function validate(config: Config): void {
 export function isConfigReadyForGrab(config: Config): boolean {
   const id = (config.lineupId || "").trim();
   const headend = (config.headendId || "").trim();
-  if (!id || id.includes("lineupId") || headend === "lineupId") return false;
+  if (!id || !headend) return false;
+  if (id === PLACEHOLDER_LINEUP_ID || headend === PLACEHOLDER_HEADEND_ID) return false;
   return true;
 }
 

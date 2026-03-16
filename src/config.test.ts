@@ -69,12 +69,12 @@ describe("config", () => {
 });
 
 describe("isConfigReadyForGrab", () => {
-  it("returns false for default placeholder lineup", () => {
+  it("returns false for placeholder lineup (REPLACE-WITH-YOUR-*)", () => {
     expect(isConfigReadyForGrab({ ...DEFAULT_CONFIG })).toBe(false);
-    expect(isConfigReadyForGrab({ ...DEFAULT_CONFIG, lineupId: "CAN-lineupId-DEFAULT", headendId: "lineupId" })).toBe(false);
   });
   it("returns true when lineupId and headendId are set to real values", () => {
     expect(isConfigReadyForGrab({ ...DEFAULT_CONFIG, lineupId: "USA-OTA12345-X", headendId: "OTA12345" })).toBe(true);
     expect(isConfigReadyForGrab({ ...DEFAULT_CONFIG, lineupId: "CAN-ABC-DEFAULT", headendId: "ABC" })).toBe(true);
+    expect(isConfigReadyForGrab({ ...DEFAULT_CONFIG, lineupId: "CAN-lineupId-DEFAULT", headendId: "lineupId" })).toBe(true);
   });
 });

@@ -1,9 +1,9 @@
 {
   "baseUrl": "https://tvlistings.gracenote.com/api/grid",
   "userAgent": "Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0",
-  "lineupId": "CAN-lineupId-DEFAULT",
+  "lineupId": "REPLACE-WITH-YOUR-LINEUP-ID",
   "timespan": "3",
-  "headendId": "lineupId",
+  "headendId": "REPLACE-WITH-YOUR-HEADEND-ID",
   "country": "CAN",
   "timezone": "",
   "device": "-",
