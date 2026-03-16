@@ -1,20 +1,15 @@
 [Unit]
-Description=Gracenote EPG: serve xmltv.xml (HTTP on port 8766)
+Description=Gracenote EPG: incremental grab (triggered by timer every 6h)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=simple
+Type=oneshot
 # WorkingDirectory must contain config.json (or set GRABBER_CONFIG_PATH)
 WorkingDirectory=/var/lib/gracenote-epg
-# Does one grab at start, then serves http://0.0.0.0:8766/xmltv.xml
-ExecStart=/usr/bin/env gracenote-epg --serve
+ExecStart=/usr/bin/env gracenote-epg --timer-trigger
 # When installed from release archive (no npm -g), use instead:
-# ExecStart=/usr/bin/node /opt/gracenote-epg/dist/index.js --serve
-Restart=on-failure
+# ExecStart=/usr/bin/node /opt/gracenote-epg/dist/index.js --timer-trigger
 # Optional: User=tvheadend
 # Optional: Group=tvheadend
 # Optional config path: Environment=GRABBER_CONFIG_PATH=/etc/gracenote-epg/config.json
-
-[Install]
-WantedBy=multi-user.target

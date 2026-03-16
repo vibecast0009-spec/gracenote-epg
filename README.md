@@ -44,7 +44,7 @@ Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the gl
 1. **Config:** Copy `config.example.json` to `config.json` and set your lineup (e.g. `lineupId`, `headendId`, `postalCode`, `country`). See [Retrieving Lineup ID](https://github.com/jef/zap2xml/wiki/Retrieving-Lineup-ID) for how to get values.
 2. **Web UI:** `gracenote-epg --web-ui` then open http://localhost:8765/
 3. **Run once:** `gracenote-epg --run-once` (or `gracenote-epg` with no args).
-4. **Systemd:** Enable the timer so it runs every 6h: `sudo systemctl enable --now gracenote-epg.timer`
+4. **Systemd:** Start serve and the 6h grab: `sudo systemctl enable --now gracenote-epg.service` and `sudo systemctl enable --now gracenote-epg-update.timer`
 
 ## Config file and web UI
 
@@ -66,7 +66,7 @@ Config path: use `--config=path` or set `GRABBER_CONFIG_PATH`. When using the gl
 
 ## systemd
 
-See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-epg.service` and `gracenote-epg.timer` to `/etc/systemd/system/`, set `WorkingDirectory` and `ExecStart`, then enable the timer for e.g. every 6h.
+See [packaging/systemd/README.md](packaging/systemd/README.md). Copy `gracenote-epg.service`, `gracenote-epg-update.service`, and `gracenote-epg-update.timer` to `/etc/systemd/system/`, set `WorkingDirectory` and `ExecStart`, then enable the serve service and the 6h update timer.
 
 ## Docker
 

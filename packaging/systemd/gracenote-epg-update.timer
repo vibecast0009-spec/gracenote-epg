@@ -1,5 +1,5 @@
 [Unit]
-Description=Run Gracenote EPG grabber every 6 hours
+Description=Run Gracenote EPG update (incremental grab) every 6 hours
 
 [Timer]
 OnCalendar=*-*-* 00/6:00:00

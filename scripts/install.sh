@@ -28,22 +28,36 @@ fi
 
 if [[ -d "$RELEASE_DIR/packaging/systemd" ]]; then
   mkdir -p "$INSTALL_DIR/packaging/systemd"
-  cp "$RELEASE_DIR/packaging/systemd/gracenote-epg.service" "$RELEASE_DIR/packaging/systemd/gracenote-epg.timer" "$INSTALL_DIR/packaging/systemd/"
-  # Patch service: WorkingDirectory and ExecStart for this install dir (works without npm -g)
+  cp "$RELEASE_DIR/packaging/systemd/gracenote-epg.service" \
+     "$RELEASE_DIR/packaging/systemd/gracenote-epg-update.service" \
+     "$RELEASE_DIR/packaging/systemd/gracenote-epg-update.timer" \
+     "$INSTALL_DIR/packaging/systemd/"
+  # Patch both services: WorkingDirectory and ExecStart for this install dir (works without npm -g)
   if command -v sed &>/dev/null; then
-    sed -i.bak "s|WorkingDirectory=.*|WorkingDirectory=$INSTALL_DIR|" "$INSTALL_DIR/packaging/systemd/gracenote-epg.service"
-    sed -i.bak "s|ExecStart=.*|ExecStart=/usr/bin/node $INSTALL_DIR/dist/index.js --timer-trigger|" "$INSTALL_DIR/packaging/systemd/gracenote-epg.service"
-    rm -f "$INSTALL_DIR/packaging/systemd/gracenote-epg.service.bak"
+    for f in gracenote-epg.service gracenote-epg-update.service; do
+      sed -i.bak "s|WorkingDirectory=.*|WorkingDirectory=$INSTALL_DIR|" "$INSTALL_DIR/packaging/systemd/$f"
+      if [[ "$f" == "gracenote-epg.service" ]]; then
+        sed -i.bak "s|ExecStart=.*|ExecStart=/usr/bin/node $INSTALL_DIR/dist/index.js --serve|" "$INSTALL_DIR/packaging/systemd/$f"
+      else
+        sed -i.bak "s|ExecStart=.*|ExecStart=/usr/bin/node $INSTALL_DIR/dist/index.js --timer-trigger|" "$INSTALL_DIR/packaging/systemd/$f"
+      fi
+      rm -f "$INSTALL_DIR/packaging/systemd/$f.bak"
+    done
   fi
   # Install systemd units if we can
   if command -v systemctl &>/dev/null && [[ -d /etc/systemd/system ]]; then
     SUDO=""
     [[ "$(id -u)" -ne 0 ]] && SUDO="sudo"
-    $SUDO cp "$INSTALL_DIR/packaging/systemd/gracenote-epg.service" "$INSTALL_DIR/packaging/systemd/gracenote-epg.timer" /etc/systemd/system/
+    $SUDO cp "$INSTALL_DIR/packaging/systemd/gracenote-epg.service" \
+            "$INSTALL_DIR/packaging/systemd/gracenote-epg-update.service" \
+            "$INSTALL_DIR/packaging/systemd/gracenote-epg-update.timer" \
+            /etc/systemd/system/
     $SUDO systemctl daemon-reload
-    echo "Systemd units installed to /etc/systemd/system/. Enable timer with: sudo systemctl enable --now gracenote-epg.timer"
+    echo "Systemd units installed. Start serve: sudo systemctl enable --now gracenote-epg.service"
+    echo "Enable 6h grab: sudo systemctl enable --now gracenote-epg-update.timer"
   else
-    echo "Systemd units are in $INSTALL_DIR/packaging/systemd/. Copy to /etc/systemd/system/ and run systemctl daemon-reload, then enable gracenote-epg.timer."
+    echo "Systemd units are in $INSTALL_DIR/packaging/systemd/. Copy to /etc/systemd/system/ and run systemctl daemon-reload."
+    echo "Then: systemctl enable --now gracenote-epg.service  and  systemctl enable --now gracenote-epg-update.timer"
   fi
 fi
 
@@ -53,7 +67,8 @@ echo "  1. Edit config:    $INSTALL_DIR/config.json  (lineupId, postalCode, coun
 echo "  2. Web config UI:  gracenote-epg --web-ui    (then open http://localhost:8765/)"
 echo "     Or:            cd $INSTALL_DIR && node dist/index.js --web-ui"
 echo "  3. Run once:      gracenote-epg --run-once  (or node dist/index.js --run-once)"
-echo "  4. Systemd timer: sudo systemctl enable --now gracenote-epg.timer  (runs every 6h)"
+echo "  4. Systemd: sudo systemctl enable --now gracenote-epg.service  (serve xmltv at :8766)"
+echo "             sudo systemctl enable --now gracenote-epg-update.timer  (grab every 6h)"
 echo ""
 echo "Until lineup is set in config, gracenote-epg --run-once and the timer will exit with 'config not set up' (use --web-ui to configure)."
 echo "When using the global command, run from $INSTALL_DIR so config.json is found, or set GRABBER_CONFIG_PATH=$INSTALL_DIR/config.json"

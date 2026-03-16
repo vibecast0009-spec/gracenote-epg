@@ -14,7 +14,7 @@ mkdir -p "$OUT"
 
 cp -r dist package.json package-lock.json config.example.json LICENSE README.md "$OUT/"
 mkdir -p "$OUT/packaging/systemd"
-cp packaging/systemd/gracenote-epg.service packaging/systemd/gracenote-epg.timer packaging/systemd/README.md "$OUT/packaging/systemd/"
+cp packaging/systemd/gracenote-epg.service packaging/systemd/gracenote-epg-update.service packaging/systemd/gracenote-epg-update.timer packaging/systemd/README.md "$OUT/packaging/systemd/"
 cp scripts/install.sh "$OUT/"
 chmod +x "$OUT/install.sh"
 
