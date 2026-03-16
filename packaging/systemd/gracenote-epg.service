@@ -1,0 +1,18 @@
+[Unit]
+Description=Gracenote EPG grabber for tvheadend (incremental update)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Set WorkingDirectory to the directory containing config.json and where output/cache paths are relative to
+WorkingDirectory=/var/lib/gracenote-epg
+ExecStart=/usr/bin/node /opt/zap2tvheadend/dist/index.js
+# Or if installed via npm/node: ExecStart=/usr/bin/npx zap2tvheadend
+# Optional: User=tvheadend
+# Optional: Group=tvheadend
+# Config path: create config.json in WorkingDirectory or set:
+# Environment=GRABBER_CONFIG_PATH=/etc/zap2tvheadend/config.json
+
+[Install]
+WantedBy=multi-user.target
