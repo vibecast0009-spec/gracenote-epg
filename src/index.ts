@@ -1,5 +1,5 @@
-import { writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { loadConfig } from "./config.js";
 import { createRateLimiter } from "./rate-limiter.js";
 import { runIncremental, runFull } from "./tvlistings.js";
@@ -43,17 +43,23 @@ Options:
   const limiter = createRateLimiter(config);
 
   let data;
+  const ensureOutputDir = () => {
+    const outPath = resolve(config.outputFile);
+    mkdirSync(dirname(outPath), { recursive: true });
+    return outPath;
+  };
+
   if (mode === "full") {
     data = await runFull(config, limiter);
     const xml = buildXmltv({ channels: data.channels });
-    writeFileSync(resolve(config.outputFile), xml, "utf-8");
+    writeFileSync(ensureOutputDir(), xml, "utf-8");
     console.error(`Wrote ${config.outputFile}`);
   } else {
     const result = await runIncremental(config, limiter);
     data = result.data;
     if (result.dirty) {
       const xml = buildXmltv({ channels: data.channels });
-      writeFileSync(resolve(config.outputFile), xml, "utf-8");
+      writeFileSync(ensureOutputDir(), xml, "utf-8");
       console.error(`Wrote ${config.outputFile}`);
     }
   }
