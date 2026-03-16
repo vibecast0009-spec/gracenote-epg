@@ -95,7 +95,7 @@ describe("buildXmltv", () => {
     const xml = buildXmltv(minimalGrid);
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(xml).toContain("<tv ");
-    expect(xml).toContain("zap2tvheadend");
+    expect(xml).toContain("gracenote-epg");
     expect(xml).toContain('<channel id="1">');
     expect(xml).toContain("<display-name>ABC</display-name>");
     expect(xml).toContain("<programme ");

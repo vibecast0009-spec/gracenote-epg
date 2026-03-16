@@ -1,8 +1,8 @@
-# systemd setup for zap2tvheadend
+# systemd setup for gracenote-epg
 
 ## Install
 
-1. Copy the app (e.g. built `dist/` and `package.json`) to `/opt/zap2tvheadend` or install via npm.
+1. Copy the app (e.g. built `dist/` and `package.json`) to `/opt/gracenote-epg` or install via npm.
 2. Create a working directory, e.g. `/var/lib/gracenote-epg`, and put `config.json` there (or copy from `config.example.json` and edit).
 3. Copy the systemd units:
    ```bash
@@ -10,9 +10,9 @@
    ```
 4. Edit `gracenote-epg.service` if needed:
    - Set `WorkingDirectory` to the directory that contains your `config.json`.
-   - Set `ExecStart` to the correct path to `node` and `dist/index.js` (e.g. `/opt/zap2tvheadend/dist/index.js`).
+   - Set `ExecStart` to the correct path to `node` and `dist/index.js` (e.g. `/opt/gracenote-epg/dist/index.js`).
    - Optionally set `User=` and `Group=` to match the user that runs tvheadend.
-   - Optionally set `Environment=GRABBER_CONFIG_PATH=/etc/zap2tvheadend/config.json` and use a config in `/etc`.
+   - Optionally set `Environment=GRABBER_CONFIG_PATH=/etc/gracenote-epg/config.json` and use a config in `/etc`.
 5. Reload and enable the timer:
    ```bash
    sudo systemctl daemon-reload

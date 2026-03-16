@@ -4,7 +4,7 @@ export function getConfigFormHtml(): string {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>zap2tvheadend – Config</title>
+  <title>gracenote-epg – Config</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 640px; margin: 1rem auto; padding: 0 1rem; }
     h1 { font-size: 1.25rem; }
@@ -19,7 +19,7 @@ export function getConfigFormHtml(): string {
   </style>
 </head>
 <body>
-  <h1>zap2tvheadend – Config</h1>
+  <h1>gracenote-epg – Config</h1>
   <form id="f">
     <fieldset>
       <legend>Grid API</legend>

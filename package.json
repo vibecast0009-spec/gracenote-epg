@@ -1,5 +1,5 @@
 {
-  "name": "zap2tvheadend",
+  "name": "gracenote-epg",
   "version": "1.0.0",
   "description": "Gracenote TV listings to XMLTV for tvheadend EPG",
   "type": "module",
@@ -18,7 +18,7 @@
     "lint": "eslint src --ext .ts"
   },
   "bin": {
-    "zap2tvheadend": "./dist/index.js"
+    "gracenote-epg": "./dist/index.js"
   },
   "files": [
     "dist"

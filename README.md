@@ -1,4 +1,4 @@
-# zap2tvheadend
+# gracenote-epg
 
 Gracenote TV listings to XMLTV for tvheadend EPG. Fetches from the Gracenote tvlistings API, caches up to 24h with incremental head+tail updates, outputs XMLTV and optional daily archives.
 

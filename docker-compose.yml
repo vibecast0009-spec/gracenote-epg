@@ -1,7 +1,7 @@
 services:
   gracenote-epg:
     build: .
-    container_name: zap2tvheadend
+    container_name: gracenote-epg
     volumes:
       - epg-data:/data
     environment:
