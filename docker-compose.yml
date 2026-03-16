@@ -1,0 +1,23 @@
+services:
+  gracenote-epg:
+    build: .
+    container_name: zap2tvheadend
+    volumes:
+      - epg-data:/data
+    environment:
+      - GRABBER_CONFIG_PATH=/data/config.json
+      - OUTPUT_FILE=/data/xmltv.xml
+      - CACHE_FILE=/data/cache.json
+      - ARCHIVE_DIR=/data/archive
+      # Override grid params via env if needed:
+      # - LINEUP_ID=CAN-yourlineup-DEFAULT
+      # - POSTAL_CODE=A1A1A1
+      # - COUNTRY=CAN
+    # Run once (e.g. from host cron or systemd timer):
+    # docker compose run --rm gracenote-epg
+    # Or run and loop every 6h:
+    # command: ["sh", "-c", "while true; do node dist/index.js; sleep 21600; done"]
+    restart: "no"
+
+volumes:
+  epg-data:

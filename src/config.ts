@@ -49,6 +49,8 @@ function applyOverrides(config: Config): Config {
   };
   const port = parseEnvOrCli("webUiPort", "WEB_UI_PORT");
   out.webUiPort = n(port, config.webUiPort);
+  const servePort = parseEnvOrCli("servePort", "SERVE_PORT");
+  out.servePort = n(servePort, config.servePort ?? 8766);
   return out;
 }
 

@@ -20,5 +20,6 @@
     "requestDelayMs": 1500,
     "maxRequestsPerMinute": 20
   },
-  "webUiPort": 8765
+  "webUiPort": 8765,
+  "servePort": 8766
 }

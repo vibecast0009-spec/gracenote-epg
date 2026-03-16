@@ -6,6 +6,7 @@ import { runIncremental, runFull } from "./tvlistings.js";
 import { buildXmltv } from "./xmltv.js";
 import { archiveCompletedDays } from "./archive.js";
 import { startWebServer } from "./web-server.js";
+import { startServeXmltv } from "./serve-xmltv.js";
 
 function getArg(name: string): string | undefined {
   const flag = `--${name}=`;
@@ -22,7 +23,8 @@ Usage: node dist/index.js [options]
 
 Options:
   --mode=full|incremental   Full refill (24h) or incremental (head+tail 6h). Default: incremental
-  --serve                  Start web config UI and (if output exists) serve xmltv.xml
+  --serve                  After grab, serve xmltv.xml at http://host:servePort/xmltv.xml for tvheadend URL
+  --web                    Start web config UI only (no grab)
   --config=path            Config file path (default: config.json)
   --help                   Show this help
 `);
@@ -57,6 +59,11 @@ Options:
   }
 
   archiveCompletedDays(data.channels, config.archiveDir);
+
+  if (hasFlag("serve")) {
+    const port = config.servePort > 0 ? config.servePort : 8766;
+    startServeXmltv(config.outputFile, port);
+  }
 }
 
 main().catch((err) => {

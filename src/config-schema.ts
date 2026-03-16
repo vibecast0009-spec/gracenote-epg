@@ -51,6 +51,8 @@ export interface AppConfig {
   rateLimit: RateLimitConfig;
   /** Web config UI port (0 = disabled) */
   webUiPort: number;
+  /** Port for serving xmltv.xml (--serve mode, for tvheadend URL) */
+  servePort: number;
 }
 
 export type Config = GridConfig & AppConfig;
@@ -80,4 +82,5 @@ export const DEFAULT_CONFIG: Config = {
     maxRequestsPerMinute: 20,
   },
   webUiPort: 8765,
+  servePort: 8766,
 };
