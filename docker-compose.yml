@@ -1,6 +1,9 @@
+name: gracenote-epg
+
 services:
   gracenote-epg:
     build: .
+    image: gracenote-epg:latest
     container_name: gracenote-epg
     volumes:
       - epg-data:/data
