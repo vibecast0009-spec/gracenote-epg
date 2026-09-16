@@ -12,6 +12,7 @@ FROM node:20-alpine
 WORKDIR /app
 COPY --from=build /app/package.json ./
 COPY --from=build /app/dist ./dist
+COPY scripts ./scripts
 VOLUME /data
 ENV GRABBER_CONFIG_PATH=/data/config.json
 # Default output path for tvheadend
