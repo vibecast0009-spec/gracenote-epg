@@ -137,7 +137,9 @@ async function main() {
 
     try {
       await runGrabber(configPath);
+const grabberOutput = path.join(DATA_DIR, "xmltv.xml");
 
+await fs.copyFile(grabberOutput, xmlPath);
       const xml = await fs.readFile(xmlPath, "utf8");
 
       const lineupChannels = extract(xml, "channel");
